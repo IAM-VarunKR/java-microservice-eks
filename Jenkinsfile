@@ -20,7 +20,7 @@ pipeline {
                     }
                 }
             }
-        }
+        
         stage('SonarQube Analysis') {
             steps {
                 withEnv([
@@ -44,6 +44,7 @@ pipeline {
                     echo 'Pushing Docker image to ECR...'
                     dockerImage.push("${env.BUILD_ID}")
                     dockerImage.push("latest")
+                    }
                 }
             }
     
