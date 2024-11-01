@@ -46,9 +46,9 @@ pipeline {
     always {
         sh '''
         #!/bin/bash
-        docker rmi demo-app:$BUILD_ID || true
-        docker rmi $ECR_REPO_URI:$BUILD_ID || true
-        docker rmi $ECR_REPO_URI:latest || true
+        sh 'docker rmi demo-app:8 || true'
+        sh 'docker rmi 345594595830.dkr.ecr.us-east-1.amazonaws.com/demo-app:8 || true'
+        sh 'docker rmi 345594595830.dkr.ecr.us-east-1.amazonaws.com/demo-app:latest || true'
         '''
             }
         }
