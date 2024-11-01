@@ -16,6 +16,7 @@ pipeline {
                 script {
                     echo 'Building the application...'
                     sh 'mvn clean package -DskipTests'
+                    }
                 }
             }
         }
@@ -44,8 +45,6 @@ pipeline {
                     dockerImage.push("latest")
                 }
             }
-        }
-    }
     
     post {
     always {
@@ -58,4 +57,4 @@ pipeline {
         }
     }
 }
-}
+
