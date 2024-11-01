@@ -44,14 +44,11 @@ pipeline {
     
     post {
     always {
-        sh '''
-        #!/bin/bash
-        sh 'docker rmi demo-app:8 || true'
-        sh 'docker rmi 345594595830.dkr.ecr.us-east-1.amazonaws.com/demo-app:8 || true'
-        sh 'docker rmi 345594595830.dkr.ecr.us-east-1.amazonaws.com/demo-app:latest || true'
-        '''
-            }
+        script {
+            // Check if the image exists before attempting to remove it
+            sh 'if [ "$(docker images -q demo-app:8 2> /dev/null)" != "" ]; then docker rmi demo-app:8; fi'
+            sh 'if [ "$(docker images -q 345594595830.dkr.ecr.us-east-1.amazonaws.com/demo-app:8 2> /dev/null)" != "" ]; then docker rmi 345594595830.dkr.ecr.us-east-1.amazonaws.com/demo-app:8; fi'
+            sh 'if [ "$(docker images -q 345594595830.dkr.ecr.us-east-1.amazonaws.com/demo-app:latest 2> /dev/null)" != "" ]; then docker rmi 345594595830.dkr.ecr.us-east-1.amazonaws.com/demo-app:latest; fi'
         }
-
-
+    }
 }
