@@ -19,6 +19,7 @@ pipeline {
                     echo 'Running SonarQube analysis...'
                     withEnv(["SONAR_HOST_URL=http://34.201.43.25:9000/"]) {
                     sh 'mvn sonar:sonar -Dsonar.host.url=$SONAR_HOST_URL'
+                    }
                 }
             }
         }
