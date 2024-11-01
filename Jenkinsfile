@@ -41,6 +41,15 @@ pipeline {
             }
         }
     }
+    stage('Post Actions') {
+    steps {
+        script {
+            sh 'docker rmi demo-app:8 || true'
+            sh 'docker rmi 345594595830.dkr.ecr.us-east-1.amazonaws.com/demo-app:8 || true'
+            sh 'docker rmi 345594595830.dkr.ecr.us-east-1.amazonaws.com/demo-app:latest || true'
+            }
+        }
+    }
     post {
     always {
         sh '''
