@@ -32,9 +32,8 @@ pipeline {
         stage('Docker Build and Push') {
             steps {
                 script {
-                    echo 'Building Docker image...'
-                    dockerImage = docker.build("demo-app:${env.BUILD_ID}") -f demo/Dockerfile demo/
-
+                    sh 'docker build -t demo-app:${env.BUILD_ID} -f demo/Dockerfile demo/'
+                }
                     echo 'Authenticating Docker with ECR...'
                     sh """
                     aws ecr get-login-password --region $AWS_REGION | docker login --username AWS ECR --password-stdin $ECR_REPO_URI
