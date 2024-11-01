@@ -4,6 +4,12 @@ pipeline {
         AWS_REGION = 'us-east-1' // Replace with your AWS region, e.g., 'us-east-1'
         ECR_REPO_URI = '345594595830.dkr.ecr.us-east-1.amazonaws.com/demo-app' // Replace with your actual ECR URI
     }
+    stage('Debug') {
+            steps {
+                // List the contents of the workspace to verify Dockerfile location
+                sh 'ls -la /var/lib/jenkins/workspace/JavaMicroservicePipeline/'
+            }
+        }
     stages {
         stage('Build') {
             steps {
@@ -27,7 +33,7 @@ pipeline {
             steps {
                 script {
                     echo 'Building Docker image...'
-                    dockerImage = docker.build("demo-app:${env.BUILD_ID}")
+                    dockerImage = docker.build("demo-app:${env.BUILD_ID}") -f demo/Dockerfile demo/
 
                     echo 'Authenticating Docker with ECR...'
                     sh """
