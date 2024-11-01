@@ -17,9 +17,9 @@ pipeline {
                 script {
                     echo 'Building the application...'
                     sh 'mvn clean package -DskipTests'
-                    }
                 }
             }
+        }
         
         stage('SonarQube Analysis') {
             steps {
@@ -34,29 +34,33 @@ pipeline {
         stage('Docker Build and Push') {
             steps {
                 script {
+                    // Build the Docker image
                     sh 'docker build -t demo-app:${env.BUILD_ID} -f demo/Dockerfile demo/'
-                }
+
+                    // Authenticate Docker with ECR
                     echo 'Authenticating Docker with ECR...'
                     sh """
-                    aws ecr get-login-password --region $AWS_REGION | docker login --username AWS ECR --password-stdin $ECR_REPO_URI
+                    aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO_URI
                     """
 
+                    // Create a Docker image object and push it
+                    def dockerImage = docker.image("demo-app:${env.BUILD_ID}")
                     echo 'Pushing Docker image to ECR...'
                     dockerImage.push("${env.BUILD_ID}")
                     dockerImage.push("latest")
-                    }
                 }
             }
-    
+        }
+    }
+
     post {
-    always {
-        script {
-            // Check if the image exists before attempting to remove it
-            sh 'if [ "$(docker images -q demo-app:8 2> /dev/null)" != "" ]; then docker rmi demo-app:8; fi'
-            sh 'if [ "$(docker images -q 345594595830.dkr.ecr.us-east-1.amazonaws.com/demo-app:8 2> /dev/null)" != "" ]; then docker rmi 345594595830.dkr.ecr.us-east-1.amazonaws.com/demo-app:8; fi'
-            sh 'if [ "$(docker images -q 345594595830.dkr.ecr.us-east-1.amazonaws.com/demo-app:latest 2> /dev/null)" != "" ]; then docker rmi 345594595830.dkr.ecr.us-east-1.amazonaws.com/demo-app:latest; fi'
+        always {
+            script {
+                // Check if the image exists before attempting to remove it
+                sh 'if [ "$(docker images -q demo-app:8 2> /dev/null)" != "" ]; then docker rmi demo-app:8; fi'
+                sh 'if [ "$(docker images -q 345594595830.dkr.ecr.us-east-1.amazonaws.com/demo-app:8 2> /dev/null)" != "" ]; then docker rmi 345594595830.dkr.ecr.us-east-1.amazonaws.com/demo-app:8; fi'
+                sh 'if [ "$(docker images -q 345594595830.dkr.ecr.us-east-1.amazonaws.com/demo-app:latest 2> /dev/null)" != "" ]; then docker rmi 345594595830.dkr.ecr.us-east-1.amazonaws.com/demo-app:latest; fi'
             }
         }
     }
 }
-
