@@ -40,11 +40,11 @@ pipeline {
         }
     }
     post {
-        always {
-            echo 'Cleaning up Docker images...'
-            sh 'docker rmi demo-app:${env.BUILD_ID} || true'
-            sh 'docker rmi $ECR_REPO_URI:${env.BUILD_ID} || true'
-            sh 'docker rmi $ECR_REPO_URI:latest || true'
+    always {
+        sh '#!/bin/bash \n docker rmi demo-app:${env.BUILD_ID} || true'
+        sh '#!/bin/bash \n docker rmi $ECR_REPO_URI:${env.BUILD_ID} || true'
+        sh '#!/bin/bash \n docker rmi $ECR_REPO_URI:latest || true'
+            }
         }
-    }
+
 }
