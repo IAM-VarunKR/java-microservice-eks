@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        AWS_REGION = 'us-east-1' // Replace with your AWS region, e.g., 'us-east-1'
+        AWS_REGION = 'us-east-1' // Replace with your AWS region
         ECR_REPO_URI = '345594595830.dkr.ecr.us-east-1.amazonaws.com/demo-app' // Replace with your actual ECR URI
     }
     
@@ -37,11 +37,11 @@ pipeline {
                     // Build the Docker image
                     sh 'docker build -t demo-app:${env.BUILD_ID} -f demo/Dockerfile demo/'
 
-                    // Authenticate Docker with ECR
+                    // Authenticate Docker with ECR using bash
                     echo 'Authenticating Docker with ECR...'
-                    sh """
+                    sh '''
                     aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO_URI
-                    """
+                    '''
 
                     // Create a Docker image object and push it
                     def dockerImage = docker.image("demo-app:${env.BUILD_ID}")
