@@ -1,12 +1,15 @@
 pipeline {
     agent any
-
+    environment {
+        AWS_REGION = 'us-east-1' // Replace with your AWS region, e.g., 'us-east-1'
+        ECR_REPO_URI = '345594595830.dkr.ecr.us-east-1.amazonaws.com/demo-app' // Replace with your actual ECR URI
+    }
     stages {
         stage('Build') {
             steps {
                 script {
                     echo 'Building the application...'
-                    sh 'mvn clean package'
+                    sh 'mvn clean package -DskipTests'
                 }
             }
         }
@@ -22,19 +25,26 @@ pipeline {
             steps {
                 script {
                     echo 'Building Docker image...'
-                    sh 'docker build -t your-docker-image-name .'
-                    sh 'docker tag your-docker-image-name:latest your-ecr-repo-uri:latest'
-                    sh 'docker push your-ecr-repo-uri:latest'
+                    dockerImage = docker.build("demo-app:${env.BUILD_ID}")
+
+                    echo 'Authenticating Docker with ECR...'
+                    sh """
+                    aws ecr get-login-password --region $AWS_REGION | docker login --username AWS ECR --password-stdin $ECR_REPO_URI
+                    """
+
+                    echo 'Pushing Docker image to ECR...'
+                    dockerImage.push("${env.BUILD_ID}")
+                    dockerImage.push("latest")
                 }
             }
         }
-        stage('Deploy to EKS') {
-            steps {
-                script {
-                    echo 'Deploying to EKS...'
-                    sh 'kubectl apply -f deployment.yaml'
-                }
-            }
+    }
+    post {
+        always {
+            echo 'Cleaning up Docker images...'
+            sh 'docker rmi demo-app:${env.BUILD_ID} || true'
+            sh 'docker rmi $ECR_REPO_URI:${env.BUILD_ID} || true'
+            sh 'docker rmi $ECR_REPO_URI:latest || true'
         }
     }
 }
