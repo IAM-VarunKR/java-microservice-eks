@@ -41,10 +41,14 @@ pipeline {
     }
     post {
     always {
-        sh '#!/bin/bash \n docker rmi demo-app:${env.BUILD_ID} || true'
-        sh '#!/bin/bash \n docker rmi $ECR_REPO_URI:${env.BUILD_ID} || true'
-        sh '#!/bin/bash \n docker rmi $ECR_REPO_URI:latest || true'
+        sh '''
+        #!/bin/bash
+        docker rmi demo-app:$BUILD_ID || true
+        docker rmi $ECR_REPO_URI:$BUILD_ID || true
+        docker rmi $ECR_REPO_URI:latest || true
+        '''
             }
         }
+
 
 }
