@@ -15,11 +15,11 @@ pipeline {
         }
         stage('SonarQube Analysis') {
             steps {
-                script {
-                    echo 'Running SonarQube analysis...'
-                    withEnv(["SONAR_HOST_URL=http://34.201.43.25:9000/"]) {
-                    sh 'mvn sonar:sonar -Dsonar.host.url=$SONAR_HOST_URL'
-                    }
+                withEnv([
+                    "SONAR_HOST_URL=http://34.201.43.25:9000/",
+                    "SONAR_LOGIN=8a93d16d56a2b8a19eccecce179264e5b4e3a205" // Replace with your actual SonarQube token
+                ]) {
+                    sh 'mvn sonar:sonar -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_LOGIN'
                 }
             }
         }
